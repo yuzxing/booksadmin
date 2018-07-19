@@ -24,11 +24,13 @@ urlpatterns = [
     path('code/', views.code, name="code"),#登录
     path('logout/', views.logout, name="logout"),#注销
     path('index/', views.index, name="index"),#首页
+    path('iframe_upload_img/', views.iframe_upload_img, name="iframe_upload_img"),
+    path('upload_iframe/', views.upload_iframe, name="upload_iframe"),
     path('digg/', views.digg),#点赞
+    path('comment/', views.comment),#评论
     path('backend/', views.backend, name="backend"),#点赞
     path('backend/add_article/', views.add_article, name="add_article"),#点赞
     re_path('backend/edit_article/(?P<edit_id>(\d+))/', views.edit_article, name="edit_article"),#点赞
-    path('comment/', views.comment),#评论
     re_path('(?P<username>\w+)/$', views.home_site, name="home_site"),#个人站点
     re_path('(?P<username>\w+)/(?P<condition>tag|category|archive)/(?P<params>.*)', views.home_site, name="home_site"),#个人站点详情页
     re_path('(?P<username>\w+)/articles/(?P<article_id>\d+)$', views.article_details, name="article_details"),#个人文章详情页

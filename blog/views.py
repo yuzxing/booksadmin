@@ -7,6 +7,7 @@ from django.db.models import F#导入F方法进行数据运算
 from django.db import transaction
 from my_blog import settings
 from bs4 import BeautifulSoup
+import uuid
 import json
 import os
 
@@ -14,10 +15,13 @@ import os
 from django.http import JsonResponse
 
 
+USER_LIST = []
+
+
 def index(request):
     article_list = Article.objects.all()
 
-    return render(request, "index.html", {"article_list": article_list})
+    return render(request, "index.html", {"article_list": article_list, 'user_list': USER_LIST})
 
 
 def code(request):
@@ -54,6 +58,55 @@ def login(request):
         return redirect("/index/")
 
     return render(request, 'login.html', {'msg': '用户名或密码错误'})
+
+
+def form_data_upload(request):
+    """
+    ajax上传文件
+    :param request:
+    :return:
+    """
+    img_upload = request.FILES.get('img_upload')
+
+    file_name = str(uuid.uuid4()) + "." + img_upload.name.rsplit('.', maxsplit=1)[1]
+    img_file_path = os.path.join('static', 'imgs', file_name)
+    with open(img_file_path, 'wb') as f:
+        for line in img_upload.chunks():
+            f.write(line)
+
+    return HttpResponse(img_file_path)
+
+
+def iframe_upload_img(request):
+    if request.method == "GET":
+        return render(request, 'register.html')
+    user = request.POST.get('user')
+    pwd = request.POST.get('pwd')
+    avatar = request.POST.get('avatar')
+    USER_LIST.append(
+        {
+            'user': user,
+            'pwd': pwd,
+            'avatar': avatar
+        }
+    )
+    return redirect('/index/')
+
+
+def upload_iframe(request):
+    ret = {'status': True, 'data': None}
+    try:
+        avatar = request.FILES.get('avatar')
+        file_name = str(uuid.uuid4()) + "." + avatar.name.rsplit('.', maxsplit=1)[1]
+        img_file_path = os.path.join('static', 'imgs', file_name)
+        with open(img_file_path, 'wb') as f:
+            for line in avatar.chunks():
+                f.write(line)
+        ret['data'] = os.path.join("/", img_file_path)
+    except Exception as e:
+        ret['status'] = False
+        ret['error'] = '上传失败'
+    return HttpResponse(json.dumps(ret))
 
 
 def logout(request):
